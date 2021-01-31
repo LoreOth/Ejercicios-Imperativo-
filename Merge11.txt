@@ -1,0 +1,181 @@
+{
+11. Un cine posee la lista de películas que proyectará durante el mes de octubre. De cada
+película se conoce: código de película, código de género (1: acción, 2: aventura, 3: drama,
+4: suspenso, 5: comedia, 6: bélica, 7: documental y 8: terror) y puntaje promedio otorgado
+por las críticas.
+Implementar un programa que contenga:
+a. Un módulo que lea los datos de películas y los almacene ordenados por código de
+película y agrupados por código de género, en una estructura de datos adecuada. La
+lectura finaliza cuando se lee el código de película -1.
+b. Un módulo que reciba la estructura generada en el punto a y retorne una estructura
+de datos donde estén todas las películas almacenadas ordenadas por código de película
+}
+// cosniderando que los datos vienen de una lista.-
+
+program once; 
+const
+tam=8;
+diml=6;
+type
+rango=1..diml;
+pelicula=record
+    codigoG:1..tam;
+    codigoP:integer;
+    puntaje:integer;
+end;
+
+lista=^nodo;
+nodo = record
+    dato:pelicula;
+    sig:lista;
+end;
+vector = array  [ rango] of lista ;
+procedure leerPelicula ( var leer:pelicula);
+begin
+write('Ingresar codigoP : ');
+	readln(leer.codigoP);
+	if (leer.codigoP<>-1) then begin
+	    write('Ingresar codigoG : ');
+	    readln(leer.codigoG);
+	    write('Ingresar puntaje: ');
+    	readln(leer.puntaje);
+    end;
+end;
+procedure agregarAdelante(var l:lista; leer:pelicula);
+var
+aux:lista;
+begin
+new(aux);
+aux^.dato:=leer;
+aux^.sig:=l;
+l:=aux;
+end;
+
+ 
+procedure cargarLista (var l:lista);      // cargo la lista que se dispone para probar
+var
+leer:pelicula;
+begin
+    leerPelicula(leer);
+    while(leer.codigoP<>-1) do begin
+        agregarAdelante(l, leer);
+        leerPelicula(leer);
+    end;
+end;
+
+ 
+procedure insertarOrdenado(var pri:lista ; datos:pelicula );
+
+var
+  ant, nue, act: lista;
+begin
+  new (nue);
+  nue^.dato := datos;
+  act := pri;
+  while (act<>NIL) and (act^.dato.codigoP < datos.codigoP) do begin
+    ant := act;
+    act := act^.sig ;
+  end;
+  if (act = pri)  then
+    pri := nue
+  else
+    ant^.sig := nue;
+  nue^.sig := act ;
+end;
+
+procedure inicializarV (var v:vector); 
+var 
+i:integer; 
+begin 
+for i:=1 to 8 do begin 
+    v[i]:=nil; 
+end; 
+end; 
+        
+procedure cargoV( var v:vector ; l:lista) ;
+begin
+while (l<>nil) and ( L^.dato.codigoP<>-1)  do begin
+    insertarOrdenado(v [ l^.dato.codigoG] , l^.dato) ;         // es mi vector agrupado y ordenado
+    l:=l^.sig;
+ end;
+end;
+
+
+
+// tengop que usar merge para inciso b.
+
+procedure minimo(var v:vector; var min:pelicula; var ok:boolean); 
+var 
+  i, indiceMin: integer; 
+begin 
+  indicemin:= -1; 
+  min.codigoP:=999; 
+  for i:= 1 to 8 do begin 
+     if (v[i] <> nil) and (v[i]^.dato.codigoP< min.codigoP) then begin 
+       min:=v[i]^.dato; 
+       indiceMin:=i; 
+     end; 
+  end; 
+  if (indicemin <> -1) then 
+    v[indiceMin]:=v[indiceMin]^.sig 
+  else 
+  ok:=false; 
+ end; 
+
+
+   Procedure AgregarAtras (var pri:lista; var ult: lista; elem:pelicula);
+  var
+    nue : lista;
+  begin
+    new (nue);
+    nue^.dato:= elem;
+    nue^.sig := NIL;
+    if (pri <> nil) then
+      ult^.sig := nue
+    else
+      pri := nue;
+    ult := nue;
+  end;
+
+
+Procedure Merge(var v:vector; var L2:lista);
+  var
+	min:pelicula; ult:lista; ok:boolean;
+  Begin
+       L2:=nil;
+       ok:=true;
+       Minimo(v, min,ok);
+       while( ok )  do begin
+            AgregarAtras(L2,ult,min);
+            Minimo(v, min, ok)
+       end;
+  end;
+procedure imprimir(l2:lista);
+begin
+write('dato ordenado por codigo de pelicula ');
+while (l2<>nil) do begin    
+    write('    ');
+    write(l2^.dato.codigoP);
+    write(l2^.dato.codigoG);
+    write(l2^.dato.puntaje);
+    l2:=l2^.sig;
+ end;
+end;
+var
+l:lista;
+l2:lista;
+v:vector;
+begin
+l:=nil;
+l2:=nil;
+cargarLista(l);
+cargoV(v,l);
+Merge(v,l2);
+imprimir(l2);
+end.
+
+
+
+
+
+

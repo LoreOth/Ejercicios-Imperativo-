@@ -1,0 +1,164 @@
+{
+
+Implementar un programa que procese la información de las ventas de productos de una
+librería que tiene 4 sucursales. De cada venta se lee fecha de venta, código del producto
+vendido, código de sucursal y cantidad vendida. El ingreso de las ventas finaliza cuando se
+lee el código de sucursal 0.
+Implementar un programa que:
+a. Almacene las ventas ordenadas por código de producto y agrupados por sucursal, en
+una estructura de datos adecuada.
+b. Contenga un módulo que reciba la estructura generada en el punto a y retorne una
+estructura donde esté acumulada la cantidad total vendida para cada código de producto.
+}
+
+program doce; 
+type
+rango= 1..4;
+producto=record
+    dia:integer;
+    codigo_p:integer;
+    codigo_s:0..4;
+    cant:integer;
+end;
+producto2= record
+    cant:integer;
+    codigo_p:integer;
+end;
+
+lista=^nodo;
+nodo= record
+    dato:producto;
+    sig:lista;
+end;
+
+lista2=^nodo2;
+nodo2= record
+    dato2:producto2;
+    sig2:lista2;
+end;
+
+vector = array [ rango ] of lista ;
+
+procedure leerproducto (var leer:producto);
+begin
+write ('Ingrese el codigo de sucursal');
+readln (leer.codigo_s);
+if (leer.codigo_s<>0) then begin
+    write ('Ingrese el codigo de producto'); 
+    readln (leer.codigo_p); 
+    write ('Ingrese la fecha'); 
+    readln (leer.dia);
+    write ('Ingrese la cantidad'); 
+    readln (leer.cant);
+ end;
+end;
+Procedure InsertarEnLista ( var pri: lista; elem: producto);
+var
+  ant, nue, act: lista;
+begin
+  new (nue);
+  nue^.dato := elem;
+  act := pri;
+  while (act<>NIL) and (act^.dato.codigo_p < elem.codigo_p) do begin
+    ant := act;
+    act := act^.sig ;
+  end;
+  if (act = pri)  then
+    pri := nue
+  else
+    ant^.sig := nue;
+  nue^.sig := act ;
+end;
+procedure inicializarV (var v:vector);  
+var   
+i:integer;  
+begin  
+for i:=1 to 4 do begin  
+    v[i]:=nil;  
+  end;  
+  end;  
+        
+procedure cargarV ( var v:vector);
+var
+leer:producto;
+begin
+leerproducto(leer);
+while (leer.codigo_s<>0) do begin
+    InsertarEnLista(v [leer.codigo_s ], leer);
+    leerproducto(leer);
+ end;
+end;
+
+procedure minimo(var v:vector;var registro_nuevo:producto2); 
+var 
+i,indicemin:integer; 
+begin 
+  registro_nuevo.codigo_p:=999;  // voy a usar un nuevo registro  
+  indicemin:=-1; 
+  for i:= 1 to 4 do 
+     if (v[i] <> nil) and (v[i]^.dato.codigo_p<=registro_nuevo.codigo_p) then  begin 
+       indicemin:=i; 
+       registro_nuevo.codigo_p:=v[indicemin]^.dato.codigo_p; // aca actualiza el minimo 
+      end; 
+  if (indicemin <> -1) then begin  // si pasa esto es porque encontr'o un minimo 
+    registro_nuevo.cant:=v[indicemin]^.dato.cant; 
+    v[indicemin]:=v[indicemin]^.sig; 
+end; 
+end; 
+
+procedure AgregarAtras(var l2,ult:lista2;codigo,total:integer); 
+var 
+aux:lista2; 
+begin 
+new(aux); 
+aux^.dato2.codigo_p:=codigo; 
+aux^.dato2.cant:=total; 
+aux^.sig2:=nil; 
+if(l2=nil)then 
+   l2:=aux 
+else 
+  ult^.sig2:=aux; 
+ult:=aux; 
+end; 
+
+procedure merge (v:vector; VAR l2:lista2 ); 
+var 
+actual:integer; 
+total:integer; 
+registro_nuevo:producto2; 
+ult:lista2; 
+begin 
+l2:=nil; 
+minimo(v, registro_nuevo); 
+while (registro_nuevo.codigo_p<>999) do begin 
+    actual:=registro_nuevo.codigo_p; 
+    total:=0; 
+    while(registro_nuevo.codigo_p<>999) and (actual= registro_nuevo.codigo_p) do begin 
+        total:=total+registro_nuevo.cant; 
+        minimo(v, registro_nuevo); 
+    end; 
+    AgregarAtras(l2,ult,actual,total);  // aca agrego a la lista2, la nueva  
+  end; 
+end;         
+        
+procedure imprimirLista (l2:lista2);
+begin
+while(l2<>nil) do begin
+    write('la cantidad total del producto', l2^.dato2.codigo_p, 'es ', l2^.dato2.cant);
+    l2:=l2^.sig2;
+ end;
+end;
+
+
+var
+v:vector;
+l:lista;
+l2:lista2;
+begin
+l2:=nil;
+l:=nil;
+inicializarV(v);
+cargarV(v);
+merge(v,l2);
+imprimirLista(l2);
+end.

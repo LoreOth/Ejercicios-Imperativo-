@@ -1,0 +1,209 @@
+{
+2. Un cine posee la lista de películas que proyectará durante el mes de octubre. De cada
+película se conoce: código de película, código de género (1: acción, 2: aventura, 3: drama,
+4: suspenso, 5: comedia, 6: bélica, 7: documental y 8: terror) y puntaje promedio otorgado
+por las críticas.
+Implementar un programa modularizado que:
+a. Lea los datos de películas y los almacene por orden de llegada y agrupados por código
+de género, en una estructura de datos adecuada. La lectura finaliza cuando se lee el
+código de película -1.
+b. Una vez almacenada la información, genere un vector que guarde, para cada género,
+el código de película con mayor puntaje obtenido entre todas las críticas.
+c. Ordene los elementos del vector generado en b) por puntaje.
+d. Luego de ordenar el vector, muestre el código de película con mayor puntaje y el
+código de película con menor puntaje.
+}
+
+
+program Imperativo1;
+type
+rango=1..8;
+pelicula= record
+    codigoP:integer;
+    codigoG:rango;
+    puntaje:integer;
+end;
+lista=^nodo;
+nodo=record
+    dato:pelicula;
+    sig:lista;
+end;
+peli2=record
+    maxPuntaje:integer;
+    codigoPM:integer;
+end;
+vector = array  [rango] of lista;
+vector2=array [rango] of peli2;
+procedure leerPelicula(var leer:pelicula);
+begin
+    write('ingrese el codigo de la pelicula');
+    readln(leer.codigoP);
+    if (leer.codigoP<>-1) then begin
+        write('ingrese el codigo de genero');
+        readln(leer.codigoG);
+        write('ingrese el puntaje');
+        readln(leer.puntaje);
+    end;
+end;
+procedure inicializoV( var v:vector);
+var
+i:integer;
+Begin
+for i:=1 to 8 do  
+    v[i]:=nil;
+end;
+
+Procedure AgregarAdelante(var L:lista; elem:pelicula);         // esta es la lista inicial donde esta la informacion de peliculas
+Var nue:lista;
+Begin
+New(nue);
+nue^.dato:=elem;
+nue^.sig:=L;
+L:=nue;
+  End;
+procedure cargarLista(var l:lista);
+var
+leer:pelicula;
+begin
+leerPelicula(leer);
+while(leer.codigoP<>-1) do begin
+    AgregarAdelante(l, leer);
+    leerPelicula(leer);
+ end;
+end;
+
+Procedure agregarAtras(var p:lista; valor:pelicula);
+Var
+  aux,act,ant:lista;
+Begin
+  new (aux); 
+  aux^.dato:= valor; 
+  aux^.sig:=nil;
+
+  if (p = nil) then
+    p:= aux
+  else begin
+    act:= p; ant:=p;
+    while (act <> nil) do begin
+      ant:=act;
+      act:= act^.sig;
+    end;
+    ant^.sig:= aux;
+  end;
+end;
+
+procedure cargarVector (l:lista; var v:vector);    // aca genero mi vector ( a traves de la lista que se lee)
+begin
+    while (l<>nil) do begin
+        agregarAtras(v [l^.dato.codigoG],l^.dato);
+        l:=l^.sig;
+    end;
+end;
+
+procedure imprimirL( l:lista);
+begin 
+write('Datos de la lista brindada, codigo de peli, genero y puntaje');
+while (l<>nil) do begin 
+    write(l^.dato.codigoP);
+    write(l^.dato.codigoG);
+    write(l^.dato.puntaje);
+    write('--');
+    l:=l^.sig;
+ end;
+end;
+procedure imprimoVectordeListas(v:vector);
+var
+i:integer;
+begin
+write('Se imprime para cada genero, codigo de pelicula y puntaje,  ');
+for i:=1 to 8 do begin  
+    write(i);
+    write('  ');
+    
+    while (v[i]<>nil) do begin  
+        write(v[i]^.dato.codigoP);
+        write(v[i]^.dato.puntaje);
+        write('  ');
+        v[i]:=v[i]^.sig;
+    end;
+    
+end;
+end;
+procedure imprimirOrdenado( v2:vector2);
+var
+i:integer;
+begin
+write('IMPRESION ORDENADA, codigo y puntaje, ');
+for i:=1 to 8 do begin
+    write(v2[i].codigoPM);
+    write(v2[i].maxPuntaje);
+    write(' ');
+    
+    end;
+end;
+   
+procedure maximo ( v:vector; var v2:vector2);   // tengo mi vector de listas y mi nuevo vector donde guardo un registro por elemento
+var
+max:integer;
+codMax:integer;
+i:integer;
+begin
+for i:=1 to 8 do begin 
+    max:=-1;
+    codMax:=-1;
+    while (v [i]<>nil ) do begin
+        if (v [i]^.dato.puntaje >max ) then begin
+            max:=v [i]^.dato.puntaje;
+            codMax:=v [i]^.dato.codigoP;
+        end;
+        v [i]:=v [i]^.sig;
+    end;
+    v2[i].codigoPM:=codMax;
+    v2[i].maxPuntaje:=max;
+end;
+    
+end;    
+            
+Procedure OrdenacionPorInsercion(var v2:vector2);  
+var
+   i: integer; j:integer; num2:peli2;
+ begin
+   for i:= 2 to 8 do begin
+      num2:=v2[i];
+ 	  j:=i-1;
+ 	while (j>0) and ( v2[j].maxPuntaje> num2.maxPuntaje) do begin
+ 		v2[j+1]:= v2[j];
+ 		j:= j-1;
+ 	end;
+ 	v2[j+1]:= num2;
+   end;
+ end;
+
+
+var
+l:lista;
+v:vector;
+v2:vector2;
+begin
+l:=nil;
+cargarLista(l);
+imprimirL(l);
+inicializoV(v);
+write('IMPRESIONES DE LOS INCISOS ');
+cargarVector(l,v);
+imprimoVectordeListas(v);
+maximo(v,v2);
+OrdenacionPorInsercion(v2);
+imprimirOrdenado(v2);
+// imprime el maximo y minimo puntaje, de los maximos de cada genero
+write('El codigo de pelicula con menor puntaje es, ', v2 [1].codigoPM);
+write('  ');
+write('Puntaje, ', v2 [1].maxPuntaje);
+write('El codigo de pelicula con mayor puntaje es, ', v2 [8].codigoPM);
+write('   ');
+write('Puntaje, ', v2 [8].maxPuntaje);
+end.
+
+
+
+

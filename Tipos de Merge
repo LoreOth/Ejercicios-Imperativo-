@@ -1,0 +1,207 @@
+TIPOS DE MERGE
+
+*******************************************************************************************************************************
+
+Minimo, Merge y agregar. Seria un Merge contador, cuenta la cantidad de veces que aparece un nodo con igual caracteristica.-
+( Uso un nuevo registro, los campos de este nuevo registro pueden llamarse igual que los campos del registro ya existente.
+
+*******************************************************************************************************************************
+
+
+
+procedure minimo(var v:vector;var registro_nuevo:entrada2); 
+var 
+i,indicemin:integer; 
+begin 
+  registro_nuevo.codigoObra:=999;  // voy a usar un nuevo registro  
+  indicemin:=-1; 
+  for i:= 1 to 4 do 
+     if (v[i] <> nil) and (v[i]^.dato.codigoObra<=registro_nuevo.codigoObra) then  begin 
+       indicemin:=i; 
+       registro_nuevo.codigoObra:=v[indicemin]^.dato.codigoObra; // aca actualiza el minimo 
+      end; 
+  if (indicemin <> -1) then begin  // si pasa esto es porque encontr'o un minimo 
+    
+    v[indicemin]:=v[indicemin]^.sig; 
+end; 
+end; 
+
+procedure AgregarAtras(var l2,ult:lista2;codigo,total:integer); 
+var 
+aux:lista2; 
+begin 
+new(aux); 
+aux^.dato2.codigoObra:=codigo; 
+aux^.dato2.total:=total; 
+aux^.sig2:=nil; 
+if(l2=nil)then 
+   l2:=aux 
+else 
+  ult^.sig2:=aux; 
+ult:=aux; 
+end; 
+
+procedure merge (v:vector; VAR l2:lista2 ); 
+var 
+actual:integer; 
+total:integer; 
+registro_nuevo:entrada2; 
+ult:lista2; 
+begin 
+l2:=nil; 
+minimo(v, registro_nuevo); 
+while (registro_nuevo.codigoObra<>999) do begin 
+    actual:=registro_nuevo.codigoObra; 
+    total:=0; 
+    while(registro_nuevo.codigoObra<>999) and (actual= registro_nuevo.codigoObra) do begin 
+        total:=total+1; 
+        minimo(v, registro_nuevo); 
+    end; 
+    AgregarAtras(l2,ult,actual,total);  // aca agrego a la lista2, la nueva  
+  end; 
+end;         
+        
+procedure imprimirLista (l2:lista2);
+begin
+while(l2<>nil) do begin
+    write('la cantidad vendida de las entrada del producto, ', l2^.dato2.codigoObra, 'es ', l2^.dato2.total);
+    l2:=l2^.sig2;
+ end;
+end;
+
+
+
+*******************************************************************************************************************************************
+Merge acumulador. A diferencia del anterio, este tiene que sumar entre los nodos iguales, la cantidad. Varian unas pequeñas lineas de codigo
+
+********************************************************************************************************************************************
+
+
+
+
+
+
+
+
+procedure minimo(var v:vector;var registro_nuevo:producto2); 
+var 
+i,indicemin:integer; 
+begin 
+  registro_nuevo.codigo_p:=999;  // voy a usar un nuevo registro  
+  indicemin:=-1; 
+  for i:= 1 to 4 do 
+     if (v[i] <> nil) and (v[i]^.dato.codigo_p<=registro_nuevo.codigo_p) then  begin 
+       indicemin:=i; 
+       registro_nuevo.codigo_p:=v[indicemin]^.dato.codigo_p; // aca actualiza el minimo 
+      end; 
+  if (indicemin <> -1) then begin  // si pasa esto es porque encontr'o un minimo 
+    registro_nuevo.cant:=v[indicemin]^.dato.cant; 
+    v[indicemin]:=v[indicemin]^.sig; 
+end; 
+end; 
+
+procedure AgregarAtras(var l2,ult:lista2;codigo,total:integer); 
+var 
+aux:lista2; 
+begin 
+new(aux); 
+aux^.dato2.codigo_p:=codigo; 
+aux^.dato2.cant:=total; 
+aux^.sig2:=nil; 
+if(l2=nil)then 
+   l2:=aux 
+else 
+  ult^.sig2:=aux; 
+ult:=aux; 
+end; 
+
+procedure merge (v:vector; VAR l2:lista2 ); 
+var 
+actual:integer; 
+total:integer; 
+registro_nuevo:producto2; 
+ult:lista2; 
+begin 
+l2:=nil; 
+minimo(v, registro_nuevo); 
+while (registro_nuevo.codigo_p<>999) do begin 
+    actual:=registro_nuevo.codigo_p; 
+    total:=0; 
+    while(registro_nuevo.codigo_p<>999) and (actual= registro_nuevo.codigo_p) do begin 
+        total:=total+registro_nuevo.cant; 
+        minimo(v, registro_nuevo); 
+    end; 
+    AgregarAtras(l2,ult,actual,total);  // aca agrego a la lista2, la nueva  
+  end; 
+end;         
+        
+procedure imprimirLista (l2:lista2);
+begin
+while(l2<>nil) do begin
+    write('la cantidad total del producto', l2^.dato2.codigo_p, 'es ', l2^.dato2.cant);
+    l2:=l2^.sig2;
+ end;
+end;
+
+
+
+
+********************************************************************************************************************************************
+Merge que solo ordena en una nueva lista en sentido ascendente.-
+********************************************************************************************************************************************
+
+procedure minimo(var v:vector; var min:pelicula; var ok:boolean); 
+var 
+  i, indiceMin: integer; 
+begin 
+  indicemin:= -1; 
+  min.codigoP:=999; 
+  for i:= 1 to 8 do begin 
+     if (v[i] <> nil) and (v[i]^.dato.codigoP< min.codigoP) then begin 
+       min:=v[i]^.dato; 
+       indiceMin:=i; 
+     end; 
+  end; 
+  if (indicemin <> -1) then 
+    v[indiceMin]:=v[indiceMin]^.sig 
+  else 
+  ok:=false; 
+ end; 
+
+
+   Procedure AgregarAtras (var pri:lista; var ult: lista; elem:pelicula);
+  var
+    nue : lista;
+  begin
+    new (nue);
+    nue^.dato:= elem;
+    nue^.sig := NIL;
+    if (pri <> nil) then
+      ult^.sig := nue
+    else
+      pri := nue;
+    ult := nue;
+  end;
+
+
+Procedure Merge(var v:vector; var L2:lista);
+  var
+	min:pelicula; ult:lista; ok:boolean;
+  Begin
+       L2:=nil;
+       ok:=true;
+       Minimo(v, min,ok);
+       while( ok )  do begin
+            AgregarAtras(L2,ult,min);
+            Minimo(v, min, ok)
+       end;
+  end;
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,150 @@
+{
+EXAMEN DE PASCAL. TALLER.-Se desea procesar información de los viajes de una Agencia de Remises.
+De cada viaje se conoce número identificador del remise, código de localidad de destino, fecha y costo del viaje. 
+Se pide implementar un programa que:
+a. Invoque a un módulo que a partir de la lectura (que finaliza con localidad de destino “XXX”) de los viajes de la agencia,
+genere un árbol binario ordenado donde para cada destino se tenga información de la cantidad de viajes realizados a ese destino.
+El árbol debe ser eficiente para la búsqueda por código de destino.
+b. Lea un valor que representa el código de destino e invoque a un módulo que reciba el árbol generado en (A) y el valor leído y retorne 
+la cantidad de viajes realizados a ese destino. El programa debe informar el resultado obtenido.
+c. Lea un código de destino e invoque a un módulo que reciba el árbol generado en (A) y el código leído y retorne la cantidad de viajes
+realizados a todos los códigos de destino inferiores al código leído. El programa debe informar el resultado
+}
+
+
+program examen2;
+type
+viaje=record
+    numero:integer;
+    destino:integer;
+    dia:integer;
+    costo:integer;
+end;
+viaje2=record
+    cantidad:integer;
+    destino:integer;
+end;
+arbol=^nodo;
+nodo= record
+    dato:viaje2;
+    hi:arbol;
+    hd:arbol;
+end;
+
+
+procedure leerViaje (var leer:viaje);
+begin
+write('Ingrese el codigo de destino');
+readln(leer.destino);
+if (leer.destino <>-1) then begin
+    write('Ingrese el numero de remis');
+    readln(leer.numero);
+    write('Ingrese el dia del viaje');
+    readln(leer.dia);
+    write('Ingrese el importe  a abonar');
+    readln(leer.costo);
+ end;
+end;
+
+
+
+Procedure Insertar(var a:arbol; leer:viaje); // inserto ordenado por destino y a su vez 
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.dato.destino:=leer.destino;
+     a^.dato.cantidad:=1;
+     a^.hi:=nil;
+     a^.hd:=nil;
+  end
+  else begin
+     if(a^.dato.destino>leer.destino) then 
+        insertar(a^.hi,leer)
+     else
+     if (a^.dato.destino<leer.destino) then 
+        insertar(a^.hd,leer)
+     else
+        a^.dato.cantidad:=a^.dato.cantidad + 1 ;                   // ver como inicializo?
+        
+  end;
+end;
+
+
+Procedure CrearABB(var a:arbol);
+var
+	leer:viaje;
+begin
+	leerViaje(leer);
+	while(leer.destino<>-1)do begin {condicion de corte}
+		Insertar(a,leer);
+		leerViaje(leer);
+	end;
+end;
+
+
+
+
+
+function buscar (a: arbol; cod:integer): integer; 
+begin 
+    if (a=nil) then  
+        buscar:=-1        // primer caso base        
+
+    else 
+    if (a^.dato.destino = cod) then           // segundo caso base 
+        buscar:=a^.dato.cantidad
+    else 
+    if (cod>a^.dato.destino) then 
+        buscar:=buscar(a^.hd, cod)
+    else 
+        buscar:=buscar(a^.hi, cod);  
+end;
+
+
+procedure comprendidos (a:arbol;dest:integer; var total:integer);       
+begin 
+if (a<>nil) then begin 
+    if (a^.dato.destino<=dest)  then begin  
+            total:= a^.dato.cantidad + total; 
+            comprendidos(a^.hi,dest,total);
+            comprendidos(a^.hd,dest,total) ;
+    end         
+    else 
+    if (a^.dato.destino>dest) then 
+        comprendidos(a^.hi,dest,total);  
+ 
+end; 
+end;
+
+
+var
+a:arbol;
+cod, dest:integer;
+total:integer;
+begin
+a:=nil;
+CrearABB(a);
+write('ingrese un codigo de destino');
+readln(cod);
+write('La cantidad de viajes en dicho destino fue de ,', buscar(a,cod));
+write('ingrese un codigo de destino para ver cuantos viajes se hicieron con destinos inferiores');
+readln(dest);
+comprendidos(a,dest,total);
+write('La cantidad de viajes a destinos de codigos inferiores fue,', total);
+end.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

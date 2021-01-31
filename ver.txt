@@ -1,0 +1,272 @@
+{
+La empresa claro tiene la info de las recargas realizadas por sus clientes en 2017. 
+De cada recarga conoce: nro de telefono, cod de area,
+monto de la recarga, fecha (dia, mes, año).
+a- generar para cada mes del año una estructura que almacene las recargas del mes, 
+ordenadas por nro de telefono. Para esto, leer desde
+teclado la info de recargas hasta que se ingrese una con monto 0. 
+Tener en cuenta que la info se ingresa sin orden alguno.           //vectordelista
+
+b- a partir de la estructura generada en a, generar una nueva donde para cada nro de telef se tenga su cod de area y 
+el monto total abonado en recargas en el año. esta estructura debe estar ordenada por nro de telefono.       //merge
+
+c- a partir de la estructura generada en B , generar una nueva que almacene para cada cod de area el monto total 
+abonado en recargas entre todos los telefonos de esa area. esta estructura debe estar ordenada por cod de area
+ y ser eficiente para la busqueda de dicho criterio.                                                                //arbol
+
+d- Utilizando la estructura generada en C, realice modulos independientes para:
+informar el monto total abonado en recargas para los codigos de area entre 1900 y 2020.
+informar la cant de areas en las cuales el monto total abonado en recargas superó los $5000.
+Nota: no puede ocurrir que exista un mismo nro de telef (ej: 44444) para dos areas distintas (ej: 221 y 11)
+}
+
+
+program Examen;
+type
+recarga=record
+    numero:integer;
+    area:integer;
+    monto:integer;
+    mes:integer;
+end;
+recarga2=record
+    total:integer;
+    numero:integer;
+    area:integer;
+end;
+lista2=^nodo2;
+nodo2=record
+    dato2:recarga2;
+    sig2:lista2;
+end;
+lista=^nodo;
+nodo=record
+    dato:recarga;
+    sig:lista;
+end;
+recargaA=record
+    total:integer;
+    area:integer;
+end;
+arbol=^nodoA;
+nodoa=record
+    datoA:recargaA;
+    hd:arbol;
+    hi:arbol;
+end;
+vector=array [1..12] of lista;
+
+
+procedure leerRecarga (var leer:recarga);
+begin
+write('Ingresar monto');
+readln(leer.monto);
+if (leer.monto<>0) then begin
+    write('Ingresar numero');
+    readln(leer.numero);
+    write('Ingresar area');
+    readln(leer.area);
+    write('Ingresar mes');
+    readln(leer.mes);
+ end;
+end;
+procedure inicializarV( var v:vector);
+Var
+i:integer;
+begin
+for i:=1 to 12 do 
+    v [i]:=nil;
+end;
+
+Procedure InsertarEnLista ( var pri: lista; elem: recarga);
+var
+  ant, nue, act: lista;
+begin
+  new (nue);
+  nue^.dato := elem;
+  act := pri;
+  while (act<>NIL) and (act^.dato.numero < elem.numero) do begin
+    ant := act;
+    act := act^.sig ;
+  end;
+  if (act = pri)  then
+    pri := nue
+  else
+    ant^.sig := nue;
+  nue^.sig := act ;
+end;
+
+procedure cargarVector (var v:vector);
+var
+leer:recarga;
+begin
+leerRecarga(leer);
+while(leer.monto<>0) do begin
+    InsertarEnLista(v [leer.mes], leer );
+    leerRecarga(leer);
+  end;
+ end;
+ 
+procedure imprimirV ( v:vector);
+var
+i:integer;
+begin
+for i:=1 to 12 do begin
+    write('Datos del mes ,', i);
+    write('  ');
+    while (v[i]<>nil ) do begin
+        write('Numero,',v[i]^.dato.numero);
+        write('  ');
+        write('Area,',v[i]^.dato.area);
+        write('  ');
+        write('Monto,',v[i]^.dato.monto);
+        write('  ');
+        v[i]:=v[i]^.sig;
+     end;
+  end;
+end;
+        
+ 
+procedure minimo(var v:vector;var registro_nuevo:recarga2; monto:integer); 
+var 
+i,indicemin:integer; 
+begin 
+  registro_nuevo.numero:=999;  // voy a usar un nuevo registro  
+  indicemin:=-1; 
+  for i:= 1 to 12 do 
+     if (v[i] <> nil) and (v[i]^.dato.numero<=registro_nuevo.numero) then  begin 
+       indicemin:=i; 
+       registro_nuevo.numero:=v[indicemin]^.dato.numero; // aca actualiza el minimo 
+       registro_nuevo.area:=v[indicemin]^.dato.area;
+       monto:=v[indicemin]^.dato.monto;
+       
+      end; 
+  if (indicemin <> -1) then begin  // si pasa esto es porque encontr'o un minimo 
+    
+    v[indicemin]:=v[indicemin]^.sig; 
+end; 
+end; 
+
+procedure AgregarAtras(var l2,ult:lista2;registro_nuevo:recarga2); 
+var 
+aux:lista2; 
+begin 
+new(aux); 
+aux^.dato2:=registro_nuevo; 
+
+aux^.sig2:=nil; 
+if(l2=nil)then 
+   l2:=aux 
+else 
+  ult^.sig2:=aux; 
+ult:=aux; 
+end; 
+
+procedure merge (v:vector; VAR l2:lista2 ); 
+var 
+actual:integer; 
+registro_nuevo:recarga2; 
+ult:lista2; 
+monto:integer;
+begin 
+l2:=nil;
+monto:=0;
+minimo(v, registro_nuevo, monto); 
+while (registro_nuevo.numero<>999) do begin 
+    actual:=registro_nuevo.numero; 
+    registro_nuevo.total:=0;
+    monto:=0;
+    while(registro_nuevo.numero<>999) and (actual= registro_nuevo.numero) do begin 
+        registro_nuevo.total:=  registro_nuevo.total+ monto;
+        minimo(v, registro_nuevo, monto); 
+    end; 
+    AgregarAtras(l2,ult,registro_nuevo);  // aca agrego a la lista2, la nueva  
+  end; 
+end;         
+        
+        
+
+Procedure Insertar(var a:arbol; leer:recarga2);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.datoA.total:=leer.total;
+     a^.datoA.area:=leer.area;
+     a^.hi:=nil;
+     a^.hd:=nil;
+  end
+  else begin
+     if(a^.datoA.area>leer.area) then 
+        insertar(a^.hi,leer)
+     else
+     if (a^.datoA.area<leer.area) then 
+        insertar(a^.hd,leer)
+     else
+        a^.datoA.total:=a^.datoA.total + leer.total;
+        
+  end;
+end;
+
+
+Procedure CrearABB(var a:arbol; l2:lista2);
+var
+actual:integer;
+begin
+    while(l2<>nil) do begin
+        actual:=l2^.dato2.area;
+	    while (l2<>nil ) and (actual = l2^.dato2.area) do begin {condicion de corte}
+	    	Insertar(a,l2^.dato2);
+		    l2:=l2^.sig2;
+	end;
+end;
+end;
+Procedure enOrden(a:arbol);        // en orden imprime ordenado de menor a mayor
+begin
+	 if(a<>nil)then begin
+		enOrden(a^.hi);
+		writeln( a^.datoA.area);
+		writeln( a^.datoA.total);
+		enOrden(a^.hd);
+	 end;
+end;        
+           
+procedure comprendidos (a:arbol; var total:integer);        
+begin 
+if (a<>nil) then 
+    if (a^.datoA.area>= 1900) and (a^.datoA.area<=2020)  then begin 
+            total:= total+a^.datoA.total;
+            comprendidos(a^.hd,total); 
+            comprendidos(a^.hi,total); 
+    end         
+    else 
+    if (a^.datoA.area< 1900) then               
+        comprendidos(a^.hd,total) 
+    else 
+    if (a^.datoA.area>2020) then 
+        comprendidos(a^.hi,total);  
+
+   end;        
+        
+  
+var
+v:vector;
+l2:lista2;
+total:integer;
+a:arbol;
+begin
+
+inicializarV(v);
+cargarVector(v);
+write('Impresion del vector de lista ordenado por mes');
+write('  ');
+imprimirV(v);
+merge(v,l2);
+CrearABB(a,l2);
+write('Impresion del arbol, ordenado por area y sus totales');
+write('    ');
+enOrden(a);
+comprendidos(a,total);
+write('EL monto total dentro de las areas 1900 y 2020 es, ', total);
+end.
+  
+

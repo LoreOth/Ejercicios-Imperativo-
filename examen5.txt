@@ -1,0 +1,193 @@
+{
+Una de las carreras de Postgrado de la Facultad de InformÃ¡tica cuenta con informaciÃ³n de los alumnos inscriptos a cada uno de los cursos de la carrera.
+De cada alumno se conoce cÃ³digo de curso (de 1 a 10), cÃ³digo de alumno, apellido, nota final.
+Implementar un programa que:
+a) Invoque a un mÃ³dulo que lea informaciÃ³n de los alumnos y retorne una estructura con los alumnos agrupados por cÃ³digo de curso. 
+La lectura finaliza con el cÃ³digo de curso igual a 0. Para cada cÃ³digo de curso, los alumnos deben quedar ordenados por cÃ³digo de alumno de forma
+ascendente.
+b) Invoque a un mÃ³dulo que genere una nueva lista que almacene el promedio de cada uno de los alumnos que cursan la carrera. 
+Esta lista debe estar ordenada por cÃ³digo de alumno de forma ascendente.
+c) Invoque a un mÃ³dulo recursivo que reciba la lista generada en b) y que retorne el cÃ³digo de alumno,
+apellido y promedio del alumno con mejor promedio.
+NOTA: mostrar los resultados obtenidos para los incisos a), b) y c).
+}
+
+
+program Examen;
+type
+alumno=record
+    codigoC:0..10;
+    codigoA:integer;
+    apellido:string;
+    nota:integer;
+end;
+alumno2=record
+    promedio:real;
+    codigoA:integer;
+    apellido:string;
+end;
+lista=^nodo;
+nodo=record
+    dato:alumno;
+    sig:lista;
+end;
+lista2=^nodo2;
+nodo2=record
+    dato2:alumno2;
+    sig2:lista2;
+end;
+vector=array[1..10] of lista;
+
+procedure leerAlumno( var leer:alumno);
+begin
+    write('Ingrese el codigo de curso');
+    readln(leer.codigoC);
+    if(leer.codigoC<>0) then begin
+        write('Ingrese el codigo de alumno');
+        readln(leer.codigoA);
+        write('Ingrese el apellido');
+        readln(leer.apellido);
+        write('Ingrese la nota');
+        readln(leer.nota);
+    end;
+end;
+
+procedure inicializarVector( var v:vector);
+var
+i:integer;
+begin
+for i:= 1 to 10 do 
+    v [i]:=nil;
+end;
+  
+Procedure InsertarEnLista ( var pri: lista; elem:alumno);
+var
+  ant, nue, act: lista;
+begin
+  new (nue);
+  nue^.dato := elem;
+  act := pri;
+  while (act<>NIL) and (act^.dato.codigoA < elem.codigoA) do begin
+    ant := act;
+    act := act^.sig ;
+  end;
+  if (act = pri)  then
+    pri := nue
+  else
+    ant^.sig := nue;
+  nue^.sig := act ;
+end;
+  
+procedure cargarV( var v:vector);
+var
+leer:alumno;
+begin
+    leerAlumno(leer);
+    while(leer.codigoC<>0) do begin
+        InsertarEnLista(v[leer.codigoC], leer);
+        leerAlumno(leer);
+    end;
+end;
+
+//////////////////////// hasta aca inciso a/////
+
+
+procedure minimo( var v:vector;var registro_nuevo:alumno);   // uso el otra variable para el registro minimo, pero de alumno
+var 
+i:integer; 
+indicemin:integer;
+begin 
+  registro_nuevo.codigoA:=999;  // voy a usar un nuevo registro  
+  indicemin:=-1; 
+  for i:= 1 to 10 do 
+     if (v[i] <> nil) and (v[i]^.dato.codigoA<=registro_nuevo.codigoA) then  begin 
+       indicemin:=i; 
+       registro_nuevo:=v[indicemin]^.dato; // aca actualiza el minimo 
+      end; 
+  if (indicemin <> -1) then begin  // si pasa esto es porque encontr'o un minimo 
+    
+    v[indicemin]:=v[indicemin]^.sig; 
+end; 
+end; 
+
+procedure AgregarAtras(var l2,ult:lista2;codigo:integer; promedio:real; nombre:string); 
+var 
+aux:lista2; 
+begin 
+new(aux); 
+aux^.dato2.codigoA:=codigo; 
+aux^.dato2.promedio:=promedio; 
+aux^.dato2.apellido:=nombre;
+aux^.sig2:=nil; 
+if(l2=nil)then 
+   l2:=aux 
+else 
+  ult^.sig2:=aux; 
+ult:=aux; 
+end; 
+
+procedure merge (v:vector; VAR l2:lista2 ); 
+var 
+actual:integer; 
+total:integer; 
+registro_nuevo:alumno; 
+ult:lista2; 
+suma:integer;
+promedio:real;
+
+begin 
+l2:=nil; 
+minimo(v, registro_nuevo); 
+while (registro_nuevo.codigoA<>999) do begin 
+    actual:=registro_nuevo.codigoA; 
+    total:=0; 
+    suma:=0;
+    promedio:=0;
+    while(registro_nuevo.codigoA<>999) and (actual= registro_nuevo.codigoA) do begin 
+            total:=total+1; 
+            suma:=suma+ registro_nuevo.nota;
+        minimo(v, registro_nuevo); 
+    end; 
+    promedio:=suma/total;
+    AgregarAtras(l2,ult,actual,promedio, registro_nuevo.apellido);  // aca agrego a la lista2, la nueva      // aca paso esos dos valores porque mi nueva lista tiene un registro disitno
+  end; 
+end;         
+        
+procedure imprimirLista (l2:lista2);
+begin
+while(l2<>nil) do begin
+    write('El promedio del alumno , ', l2^.dato2.codigoA, 'es ', l2^.dato2.promedio);
+    l2:=l2^.sig2;
+ end;
+end;
+  
+
+Procedure Maximo(L2:lista2;var max:real; var nom:string; var cod:integer);
+begin
+        
+	If(L2<>nil)then begin 
+		if(L2^.dato2.promedio>max)then begin
+		    max:=l2^.dato2.promedio;
+            nom:=l2^.dato2.apellido;
+            cod:=l2^.dato2.codigoA;
+        end;
+		L2:=L2^.sig2;
+		Maximo(L2, max, nom, cod);
+	end;
+  end;
+var
+v:vector;
+l2:lista2;
+nom:string;
+max:real;
+cod:integer;
+begin
+max:=-1;
+inicializarVector(v);
+cargarV(v);
+merge(v,l2);
+imprimirLista(l2);
+Maximo(l2,max,nom,cod);
+write('El alumno con mejor promedio es, ',nom, 'codigo de alumno, ',cod,'promedio, ',max );
+   
+end.

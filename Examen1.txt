@@ -1,0 +1,129 @@
+{
+EXAMEN DE PASCAL. TALLER.-
+
+}
+
+
+program examen1;
+type
+venta=record
+    fecha:integer;
+    codigo:integer;
+    cantidad:integer;
+    monto:integer;
+end;
+venta2=record
+    codigo:integer;
+    total:integer;
+end;
+arbol=^nodo;
+nodo=record
+    dato:venta2;
+    hd:arbol;
+    hi:arbol;
+end;
+
+procedure leerVenta(var leer:venta);
+begin
+write('Ingrese el codigo del producto');
+readln(leer.codigo);
+if (leer.codigo<>-1) then begin
+    write('Ingrese el dia de la venta');
+    readln(leer.fecha);
+    write('Ingrese la cantidad');
+    readln(leer.cantidad);
+    write('Ingrese el monto');
+    readln(leer.monto);
+  end;
+end;
+
+
+
+Procedure Insertar(var a:arbol; leer:venta);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.dato.codigo:=leer.codigo;
+     a^.dato.total:=leer.cantidad;
+     a^.hi:=nil;
+     a^.hd:=nil;
+  end
+  else begin
+     if (a^.dato.codigo=leer.codigo) then     // ver si esta bien
+        a^.dato.total:= a^.dato.total+leer.cantidad
+     else
+     if(a^.dato.codigo>leer.codigo) then
+        insertar(a^.hi,leer)
+     else
+        insertar(a^.hd,leer);
+  end;
+end;
+
+
+Procedure CrearABB(var a:arbol);
+var
+	leer:venta;
+begin
+	leerVenta(leer);
+	while(leer.codigo<>-1)do begin {condicion de corte}
+		Insertar(a,leer);
+		leerVenta(leer);
+	end;
+end;
+
+procedure enOrden( a:arbol);
+begin
+	 if(a<>nil)then begin
+		enOrden(a^.hi);
+		writeln( a^.dato.codigo);
+		writeln( a^.dato.total);
+		enOrden(a^.hd);
+	 end;
+end;
+
+           
+procedure comprendidos (a:arbol;cod1:integer; cod2:integer; var total:integer);      
+begin 
+if (a<>nil) then 
+    if (a^.dato.codigo>= cod1) and (a^.dato.codigo<=cod2)  then begin 
+            total:= total+a^.dato.total;
+            comprendidos(a^.hd, cod1,cod2,total); 
+            comprendidos(a^.hi,cod1,cod2,total); 
+    end         
+    else 
+    if (a^.dato.codigo< cod1) then               
+        comprendidos(a^.hd,cod1,cod2,total) 
+    else 
+    if (a^.dato.codigo>cod2) then 
+        comprendidos(a^.hi,cod1,cod2,total);  
+
+   end;
+
+
+var
+a:arbol;
+cod1,cod2:integer;
+total:integer;
+begin
+total:=0;
+a:=nil;
+CrearABB(a);
+write('IMPRESION EN ORDEN, DE CODIGO Y CANTIDAD. LOS REPETIDOS ESTAN SUMADOS.');
+write('    ');
+enOrden(a);
+write('    ');
+write('Ingrese los dos codigos de producto para clacular los totales vendidos');
+readln(cod1);
+readln(cod2);
+comprendidos(a,cod1,cod2,total);
+write('    ');
+write('El total es ', total);
+end.
+
+
+
+
+
+
+end.
+

@@ -1,0 +1,109 @@
+{
+2. El administrador de un edificio de oficinas, cuenta en papel, con la
+información del pago de las expensas de dichas oficinas.
+Implementar un programa que:
+a) Genere un vector, sin orden, con a lo sumo las 300 oficinas que administra.
+De cada oficina se ingresa código de identificación, DNI del propietario y
+valor de la expensa. La lectura finaliza cuando llega el código de
+identificación -1.
+b) Ordene el vector, aplicando el método de inserción, para obtener el vector
+ordenado por código de identificación de la oficina.
+c) Realice una búsqueda dicotómica que recibe el vector generado en b) y un
+código de identificación de oficina y retorne si dicho código está en el
+vector. En el caso de encontrarlo, se debe informar el DNI del propietario y
+en caso contrario informar que el código buscado no existe.
+
+}
+
+program Adicional1; 
+type
+oficina=record
+    codigo:integer;
+    dni:integer;
+    valor:integer;
+end;
+vector= array [1..300] of oficina;
+procedure leerOficina ( var leer:oficina);
+begin
+write('ingrese el codigo de la oficina');
+readln(leer.codigo);
+if (leer.codigo<>-1) then begin
+    write('ingrese el dni del propietario');
+    readln(leer.dni);
+    write('ingrese el valor de la expensa');
+    readln(leer.valor);
+ end;
+end;
+
+procedure cargarVector ( var v:vector; var diml:integer);
+var
+leer:oficina;
+begin
+diml:=0;
+leerOficina(leer);
+while (diml<=300 ) and (leer.codigo<>-1) do begin
+    diml:=diml+1;
+    v[diml]:=leer;
+    leerOficina(leer);
+ end;
+end;
+
+
+
+Procedure OrdenacionPorInsercion(var V:vector;  diml: integer);
+var
+   i: integer; j:integer; num2: oficina;
+ begin
+   for i:= 2 to diml do begin
+      num2:=v[i];
+ 	j:=i-1;
+ 	while (j>0) and ( v[j].codigo> num2.codigo) do begin
+ 		v[j+1]:= v[j];
+ 		j:= j-1;
+ 	end;
+ 	v[j+1]:= num2;
+   end;
+ end;
+
+
+procedure BusquedaBinaria(v:vector; diml:integer; dato:integer; var dniProp:integer);
+var
+pri,ult,medio: integer; 
+begin
+  pri:=1;
+  ult:=dimL;
+  medio:=((pri+ult) div 2);
+  while (pri <= ult) and (dato<>v[medio].codigo) do
+  begin
+    if(dato< v[medio].codigo) then
+      ult:=medio-1
+    else
+      pri:=medio+1;
+   medio:= ((pri+ult) div 2);
+end;
+  if (pri <= ult) and (dato = v[medio].codigo) then
+    dniProp:=v[medio].DNI;
+end;
+ 
+
+
+var
+v:vector;
+diml:integer;
+dato:integer;
+dniProp:integer;
+begin
+dniProp:=-1;
+cargarVector(v,diml);
+OrdenacionPorInsercion(v,diml);
+write('ingrese el codigo que desea buscar');
+readln(dato);
+BusquedaBinaria(v,diml, dato,dniProp);
+if (dniProp=-1) then
+    write('El codigo no existe')
+else
+write('El dni del propietario es,', dniProp);
+end.
+
+
+

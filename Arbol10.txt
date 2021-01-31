@@ -1,0 +1,116 @@
+{
+10. Implementar un programa que contenga:
+a. Un módulo que lea información de alumnos de Taller de Programación y almacene en
+una estructura de datos sólo a aquellos alumnos que posean año de ingreso posterior al
+2000. Esta estructura debe estar ordenada por legajo y debe ser eficiente para la
+búsqueda por dicho criterio. De cada alumno se lee legajo, apellido, nombre, DNI y año de
+ingreso.
+b. Un módulo que reciba la nueva estructura e informe el nombre y apellido de aquellos
+alumnos cuyo legajo sea superior a 12803.
+c. Un módulo que reciba la nueva estructura e informe el nombre y apellido de aquellos
+alumnos cuyo legajo este comprendido entre 2803 y 6982. 
+}
+
+
+program Recursion8;
+type
+alumno=record
+    legajo:integer;
+    apeYnom:string;
+    dni:integer;
+    anio:integer;
+end;
+arbol=^nodo;
+nodo=record
+    dato:alumno;
+    hd:arbol;
+    hi:arbol;
+end;
+
+Procedure Insertar(var a:arbol; leer:alumno);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.dato:=leer;
+     a^.hd:=nil;
+     a^.hi:=nil;
+  end
+  else begin
+     if(a^.dato.legajo>=leer.legajo) then
+        insertar(a^.hi,leer)
+     else
+        insertar(a^.hd,leer);
+  end;
+end;
+
+
+procedure cargarABB ( var a:arbol);
+var
+leer:alumno;
+begin
+write('Ingrese el año de ingreso');
+readln(leer.anio);
+while ( leer.anio >2000) do begin
+    write('Ingrese el apllido y nombre');
+    readln(leer.apeYnom);
+    write('Ingrese el dni');
+    readln(leer.dni);
+    write('Ingrese el legajo');
+    readln(leer.legajo);
+    Insertar(a, leer);
+    write('Ingrese un año');
+    readln(leer.anio);
+    end;
+end;
+
+
+procedure ordenLegajo ( a:arbol);         // ver no imprime bien 
+begin 
+if (a<>nil) then begin 
+    if (a^.dato.legajo < 12803)then 
+        ordenLegajo(a^.hd)
+    Else 
+    begin 
+        ordenLegajo(a^.hi); 
+        writeln (a^.dato.legajo); 
+        writeln (a^.dato.apeYnom); 
+        writeln (a^.dato.anio); 
+
+     End; 
+    end; 
+  end;
+procedure comprendidos (a:arbol); 
+begin 
+if (a<>nil) then begin 
+    if (a^.dato.legajo> 2803) and (a^.dato.legajo<6982)  then begin  
+            write('el nombre y apellido es ', a^.dato.apeYnom,'y estan comprendido '); 
+            comprendidos(a^.hd); 
+            comprendidos(a^.hi); 
+    end         
+    else 
+    if (a^.dato.legajo< 2803) then               
+        comprendidos(a^.hd) 
+    else 
+    if (a^.dato.legajo>6982) then 
+        comprendidos(a^.hi); 
+    
+   end; 
+end; 
+
+var
+a:arbol;
+begin
+a:=nil;
+cargarABB(a);
+ordenLegajo(a);
+comprendidos(a);
+end.
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,67 @@
+{
+
+5. Escribir un programa que:
+a. Implemente un módulo que genere un vector de 20 números enteros.
+b. Implemente un módulo recursivo que devuelva el máximo valor del vector.
+c. Implementar un módulo recursivo que devuelva la suma de los valores contenidos en
+el vector.
+
+}
+
+
+program Recursivo5;
+const
+diml=20;
+type
+vector= array [1..diml] of integer;
+
+procedure cargarVector(var v:vector);
+var
+i:integer;
+numero:integer;
+begin
+for i:=1 to 20 do begin
+    write('ingrese un numero');
+    readln(numero);
+    v [i]:=numero;
+ end;
+end;
+
+Procedure Maximo(V:vector; diml:integer; var max:integer);
+begin
+  If(V[diml]>max)then
+    max:=V[diml];
+  if(diml<>1)then
+    Maximo(V,diml-1,max);
+end;
+
+// como hago el maximo recursivo con funcion en un vector?  
+
+
+Procedure Suma(V:vector; diml:integer; var total:integer);
+begin
+  total:=total+V[diml];
+  If(diml<>1)then
+    Suma(V,diml-1,total);
+end;
+        
+// como hago una suma recursiva en un vector? 
+ 
+  
+var
+v:vector;
+max:integer;
+total:integer;
+begin
+max:=-1;
+cargarVector(v);
+maximo(v,diml,max);
+write('el maximo del vector es , ',max);
+Suma(v,diml,total);
+write('  ');
+write('la suma de los elementos es , ',total);
+end.
+  
+  
+        
+        

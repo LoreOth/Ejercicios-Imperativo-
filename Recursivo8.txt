@@ -1,0 +1,146 @@
+{
+8. Escribir un programa que:
+a. Implemente un módulo que lea números enteros y los almacene en un árbol binario
+de búsqueda. La lectura finaliza con el valor 0.
+b. Una vez generado el árbol, realice módulos independientes para:
+i. Obtener el número más grande.
+ii. Obtener el número más chico.
+iii. Obtener la cantidad de elementos.
+iv. Informar los números en orden creciente.
+v. Informar los números pares en orden decreciente.
+Nota: Tener en cuenta que cada número debe aparecer una única vez en el árbol. 
+}
+
+
+program Recursion8;
+type
+
+arbol=^nodo;
+nodo=record
+    dato:integer;
+    hd:arbol;
+    hi:arbol;
+end;
+
+Procedure Insertar(var a:arbol; num:integer);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.dato:=num;
+     a^.hd:=nil;
+     a^.hi:=nil;
+  end
+  else begin
+     if(a^.dato>=num) then
+        insertar(a^.hi,num)
+     else
+        insertar(a^.hd,num);
+  end;
+end;
+
+
+procedure cargarABB ( var a:arbol);
+var
+numero:integer;
+begin
+write('Ingrese un numero entero');
+readln(numero);
+while ( numero <>0) do begin
+    Insertar(a, numero);
+    write('Ingrese un numero entero');
+    readln(numero);
+    end;
+end;
+
+    
+Procedure verMin(a:arbol; var min:integer);
+Begin
+    If (a<>nil) then
+        if (a^.dato < min)then begin
+            min:=a^.dato;
+            verMin(a^.hi, min);
+        end;
+End; 
+
+Procedure verMax(a:arbol; var max:integer);
+Begin
+    If (a<>nil) then
+        if (a^.dato > max)then begin
+            max:=a^.dato;
+            verMax(a^.hd, max);
+        end;
+End; 
+
+procedure CantidadElementos( a : arbol; var cant:integer);   
+begin
+	if(a<>nil) then 
+	begin
+	  cant:=cant+1;
+	CantidadElementos(a^.HI,cant);
+	CantidadElementos(a^.HD,cant);
+	end;
+end;
+
+{SUBA izq - RAIZ - SUBA der}
+
+Procedure preOrden(a:arbol);       // ver el sentido y funcionamiento de esta impresion
+begin
+	 if(a<>nil)then begin
+ 		writeln(a^.dato);
+		preOrden(a^.hi);
+		preOrden(a^.hd);
+	 end;
+end;
+
+
+{RAIZ - SUBA izq - SUBA der}
+
+Procedure enOrden(a:arbol);        // en orden imprime ordenado de menor a mayor
+begin
+	 if(a<>nil)then begin
+		enOrden(a^.hi);
+		writeln( a^.dato);
+		enOrden(a^.hd);
+	 end;
+end;
+
+{SUBA izq - SUBA der - Raiz}
+
+Procedure PostOrden(a:arbol);  // ver el sentido y funcionamiento de esta impresion
+begin
+	 if(a<>nil)then begin
+		PostOrden(a^.hi);
+		PostOrden(a^.hd);
+        writeln( a^.dato);
+	 end;
+end;
+
+
+var  
+a:arbol;
+min,max,cant:integer;
+begin
+min:=999;
+max:=-1;
+cargarABB(a);
+verMin(a,min);
+write('El minimo es , ',min);
+write('   ');
+verMax(a,max);
+write('El maximo es , ',max);
+write('   ');
+CantidadElementos(a,cant);
+write('La cantidad de elementos en el arbol BB es, ',cant);
+write('   ');
+write('IMPRESION preOrden   ');
+write('   ');
+preOrden(a);
+write(' iMPRESION enOrden  ');
+write('   ');
+enOrden(a);
+write(' iMPRESION PostOrden  ');
+write('   ');
+PostOrden(a);
+
+end.
+

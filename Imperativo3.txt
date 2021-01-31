@@ -1,0 +1,175 @@
+﻿{
+
+3. Una librería requiere el procesamiento de la información de sus productos. De cada
+producto se conoce el código del producto, código de rubro (del 1 al 6) y precio.
+Implementar un programa modularizado que:
+a. Lea los datos de los productos y los almacene ordenados por código de producto y
+agrupados por rubro, en una estructura de datos adecuada. El ingreso de los productos
+finaliza cuando se lee el precio -1
+Una vez almacenados, muestre los códigos de los productos pertenecientes a cada rubro:
+b. Genere un vector (de a lo sumo 30 elementos) con los productos del rubro 3.
+Considerar que puede haber más o menos de 30 productos del rubro 3. Si la cantidad de
+productos del rubro 3 es mayor a 30, almacenar los primeros 30 que están en la lista e
+ignore el resto.
+c. Ordene, por precio, los elementos del vector generado en b).
+d. Muestre los precios del vector ordenado.
+
+}
+
+
+program Imperativo3;
+type
+rango=1..6;
+producto=record
+    codigo:integer;
+    rubro:rango;
+    precio:integer;
+end;
+lista=^nodo;
+nodo=record
+    dato:producto;
+    sig:lista;
+end;
+
+
+vector= array [rango] of lista;
+vector2=array [1..30] of producto;
+
+procedure leerproducto(var leer:producto);
+begin
+    write('ingrese el precio del producto');
+    readln(leer.precio);
+    if (leer.precio<>-1) then begin
+        write('ingrese el rubro');
+        readln(leer.rubro);
+        write('ingrese el codigo');
+        readln(leer.codigo);
+    end;
+end;
+
+    
+Procedure InsertarEnLista ( var pri: lista; elem: producto);
+var
+  ant, nue, act: lista;
+begin
+  new (nue);
+  nue^.dato := elem;
+  act := pri;
+  while (act<>NIL) and (act^.dato.codigo < elem.codigo) do begin
+    ant := act;
+    act := act^.sig ;
+  end;
+  if (act = pri)  then
+    pri := nue
+  else
+    ant^.sig := nue;
+  nue^.sig := act ;
+end; 
+
+procedure inicializarV(var v:vector);
+var
+i:integer;
+begin
+for i:=1 to 6 do 
+    v [i]:=nil;
+end;
+
+    
+procedure CargarVectordeListas(var v:vector);
+var
+leer:producto;
+begin
+leerproducto(leer);
+while (leer.precio<>-1) do begin
+    InsertarEnLista(v [leer.rubro], leer);
+    leerproducto(leer);
+ end;
+end;
+
+procedure imprimirA( v:vector);
+var
+i:integer;
+begin
+for i:=1 to 6 do begin
+    write('Los siguientes codigos pertenecen al rubro ', i);
+    write('   ');
+    while(v[i]<>nil ) do begin
+        write(v[i]^.dato.codigo);
+        v[i]:=v[i]^.sig;
+    end;
+    write('   ');
+ end;
+end;
+
+    
+procedure nuevoVector( var v2:vector2; v:vector; var diml:integer);
+begin
+diml:=0;
+while (v[3]<>nil) and (diml<=30 ) do begin
+    diml:=diml+1;
+    v2 [diml]:= v [3]^.dato;
+    v [3]:=v [3]^.sig;
+    end;
+end;
+Procedure imprimirNuevoVector(v2:vector2; diml:integer);
+var
+i:integer;
+begin
+for i:=1 to diml do begin
+    write(v2 [i].precio);
+    write(' ');
+    write(v2 [i].codigo);
+    write(' ');
+    write(v2 [i].rubro);
+    write(' ');
+ end;
+end;
+
+
+
+
+
+Procedure OrdenacionPorInsercion(var v2:vector2; diml: integer);  
+var
+   i: integer; j:integer; num2: producto;
+ begin
+   for i:= 2 to diml do begin
+      num2:=v2[i];
+ 	j:=i-1;
+ 	while (j>0) and ( v2[j].precio> num2.precio) do begin
+ 		v2[j+1]:= v2[j];
+ 		j:= j-1;
+ 	end;
+ 	v2[j+1]:= num2;
+   end;
+ end;    
+    
+procedure imprimirB ( v2:vector2; diml:integer);
+var
+i:integer;
+begin
+for i:=1 to diml do 
+    write(v2[i].precio);
+end;
+    
+var
+V:vector;
+v2:vector2;
+diml:integer;
+begin
+a:=nil;
+inicializarV(v);
+CargarVectordeListas(v);
+write('IMPRESION DE A');
+write('   ');
+imprimirA(v);
+nuevoVector(v2,v,diml);
+write('IMPRESION DE PRECIO, CODIGO Y RUBRO DEL VECTOR CON ELEMENTOS DEL RUBRO 3,');
+imprimirNuevoVector(v2,diml);
+OrdenacionPorInsercion(v2,diml);
+write('IMPRESION DE B, LOS PRECIOS ORDENADOS');
+write('   ');
+imprimirB(v2, diml);
+
+end.
+

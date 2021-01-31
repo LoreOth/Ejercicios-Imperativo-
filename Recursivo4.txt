@@ -1,0 +1,119 @@
+﻿{
+
+4. Escribir un programa que:
+a. Implemente un módulo que genere una lista a partir de la lectura de números enteros.
+La lectura finaliza con el número 0.
+b. Implemente un módulo recursivo que devuelva el mínimo valor de la lista.
+c. Implemente un módulo recursivo que devuelva el máximo valor de la lista.
+d. Implemente un módulo recursivo que devuelva verdadero si un valor determinado se
+encuentra en la lista o falso en caso contrario. 
+
+}
+
+
+program Recursivo4;
+type
+lista=^nodo;
+nodo=record
+    dato:integer;
+    sig:lista;
+end;
+
+Procedure AgregarAdelante(var L:lista; elem:integer);
+Var 
+    nue:lista;
+Begin
+    New(nue);
+    nue^.dato:=elem;
+    nue^.sig:=L;
+    L:=nue;
+  End;
+
+procedure cargarLista( var l:lista);
+var
+numero:integer;
+begin
+    write('Ingrese un numero entero');
+    readln(numero);
+    while (numero<>0) do begin
+        AgregarAdelante(l,numero);
+        write('Ingrese otro numero');
+        readln(numero);
+    end;
+end;
+procedure imprimir( l:lista);
+begin
+while (l<>nil) do begin
+    write(l^.dato);
+    l:=l^.sig;
+end;
+end;
+
+function minimo ( l:lista; min:integer):integer;      // inicializo minimo en programa ppal.
+begin
+    if (l=nil) then begin
+        minimo:=min
+    end
+    else
+        if ( l^.dato < min) then begin
+             minimo:= minimo(l^.sig,l^.dato)
+        end 
+        else
+         minimo:= minimo(l^.sig,min);
+end;
+
+
+function maximo ( l:lista; max:integer):integer;      // inicializo maximo en programa ppal.
+begin
+    if (l=nil) then begin
+        maximo:=max
+    end
+    else
+        if ( l^.dato > max) then begin
+             maximo:=maximo(l^.sig,l^.dato);
+        end
+        else
+             maximo:=maximo(l^.sig,max);
+end;
+
+
+        
+function buscar( l:lista; num:integer):boolean;
+begin
+    if (l=nil) then 
+        buscar:=false
+    else
+    if(l^.dato = num) then
+        buscar:=true
+    else
+        buscar:=buscar(l^.sig, num);
+end;
+
+
+var
+min:integer;
+max:integer;
+l:lista;
+num:integer;
+NMinimo:integer;
+NMaximo:integer;
+begin
+l:=nil;
+min:=999;
+max:=-1;
+cargarLista(l);
+imprimir(l);
+write('       ');
+NMinimo:=minimo(l,min);
+NMaximo:=maximo(l,max);
+write('el minimo es, ', NMinimo);
+write('el maximo es, ', NMaximo);
+write('ingrese el numero que desea buscar');
+readln(num);
+write('El estado logico de ese numero en la lista es, ',buscar(l,num));
+end.
+        
+        
+        
+        
+        

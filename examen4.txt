@@ -1,0 +1,138 @@
+{
+La Universidad Nacional de La Plata tiene información de todos los alumnos que rindieron examen final en alguna de sus Facultades 
+durante los últimos 5 años.Implementar un programa que:
+a)Invoque a un módulo que lea la información de los alumnos y genere un árbol binario de búsqueda ordenado por DNI del alumno.
+La lectura finaliza cuando se lee el alumno con nombre “XXX”. De cada alumno se lee nombre, DNI, Facultad, materia, nota y fecha de examen.
+Cada nodo del árbol debe contener el nombre y DNI del alumno y la cantidad total de materias rendidas.
+b)Invoque a un módulo que reciba la estructura generada en a) y un DNI de alumno y devuelva el nombre y la cantidad de materias rendidas por ese alumno. Mostrar el resultado en el programa principal.
+}
+
+
+program Examen;
+type
+alumno=record
+    nombre:string;
+    dni:integer;
+    facultad:string;
+    materia:string;
+    nota:integer;
+    fecha:integer;
+end;
+alumno2=record
+    nombre:string;
+    dni:integer;
+    total:integer;
+end;
+arbol=^nodo;
+nodo=record
+    dato:alumno2;
+    hi:arbol;
+    hd:arbol;
+end;
+
+procedure leerAlumno( var leer:alumno);
+begin
+write('Ingrese un nombre de alumno');
+readln(leer.nombre);
+if (leer.nombre<>'zzz') then begin
+    write('Ingrese el dni');
+    readln(leer.dni);
+    write('Ingrese la facultad');
+    readln(leer.facultad);
+    write('Ingrese la materia');
+    readln(leer.materia);
+    write('Ingrese la nota');
+    readln(leer.nota);
+    write('Ingrese la fecha');
+    readln(leer.fecha);
+ end;
+end;
+
+
+Procedure Insertar(var a:arbol; leer:alumno);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.dato.nombre:=leer.nombre;
+     a^.dato.dni:=leer.dni;
+     a^.dato.total:=1;
+     a^.hi:=nil;
+     a^.hd:=nil;
+  end
+  else begin
+     if(a^.dato.dni>leer.dni) then 
+        insertar(a^.hi,leer)
+     else
+     if(a^.dato.dni<leer.dni) then 
+        insertar(a^.hd,leer)
+     else
+      a^.dato.total:=a^.dato.total + 1;
+    
+  end;
+end;
+
+
+
+Procedure CrearABB(var a:arbol);
+var
+	leer:alumno;
+begin
+	leerAlumno(leer);
+	while(leer.nombre<>'zzz')do begin {condicion de corte}
+		Insertar(a,leer);
+		leerAlumno(leer);
+	end;
+end;
+
+Procedure enOrden(a:arbol);          // imprime en orden de manor a mayor
+begin
+	 if(a<>nil)then begin
+		enOrden(a^.hd);
+		writeln( a^.dato.nombre);
+		writeln( a^.dato.total);
+		enOrden(a^.hi);
+	 end;
+end;
+
+
+Procedure incisob (a:arbol; var numero:integer; var cant:integer; var pude:boolean; var nom:string);
+Begin
+    If (a<>nil) and (pude= false) then
+        if (a^.dato.dni = numero)then begin
+            cant:=a^.dato.total;
+            nom:=a^.dato.nombre;
+            pude:=true;
+        end
+        else
+        if (a^.dato.dni > numero) then
+            incisob (a^.hi, numero,cant, pude, nom)
+        else
+            incisob (a^.hd, numero,cant, pude, nom);
+   end;
+
+
+
+var
+a:arbol;
+numero:integer;
+cant:integer;
+pude:boolean;
+nom:string;
+begin
+pude:=false;
+cant:=0;
+a:=nil;
+CrearABB(a);
+enOrden(a);
+write('Ingrese el dni que desea buscar');
+readln(numero);
+incisob(a,numero,cant,pude,nom);
+if (pude = false) then
+       write('Ese dni no se encuentra')
+else
+ write('El alumno, ',nom,  ', tiene ', cant,'  materias ' );
+
+end.
+
+
+

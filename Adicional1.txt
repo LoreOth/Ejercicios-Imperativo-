@@ -1,0 +1,176 @@
+{
+1. Un teatro tiene funciones los 7 días de la semana. Para cada día se tiene
+una lista con las entradas vendidas.
+Se desea procesar la información de una semana. Se pide:
+a) Generar 7 listas con las entradas vendidas para cada día. De cada entrada
+se lee día (de 1 a 7), código de la obra, asiento, monto. La lectura finaliza
+con el código de obra igual a 0. Las listas deben estar ordenadas por
+código de obra de forma ascendente.
+b) Generar una nueva lista que totalice la cantidad de entradas vendidas por
+obra. Esta lista debe estar ordenada por código de obra de forma
+ascendente.
+c) Realice un módulo recursivo que informe el contenido de la lista generada
+en b)
+
+}
+
+program Adicional1; 
+type
+
+entrada=record
+    dia:1..7;
+    codigo:integer;
+    asiento:integer;
+    monto:integer;
+end;
+lista=^nodo;
+nodo=record
+    dato:entrada;
+    sig:lista;
+end;
+entrada2=record
+    cantidad:integer;
+    codigo:integer;
+end;
+lista2=^nodo2;
+nodo2=record
+    dato2:entrada2;
+    sig2:lista2;
+end;
+
+vector=array[1..7 ] of lista; 
+
+
+procedure leerEntrada(var leer:entrada);
+begin
+write('Ingrese el codigo de obra');
+readln(leer.codigo);
+if(leer.codigo<>0) then begin
+    write('Ingrese el dia');
+    readln(leer.dia);
+    write('Ingrese el asiento');
+    readln(leer.asiento);
+    write('Ingrese el monto');
+    readln(leer.monto);
+ end;
+end;
+
+
+Procedure InsertarEnLista ( var pri: lista; elem: entrada);
+  var
+    ant, nue, act: lista;
+  begin
+    new (nue);
+    nue^.dato := elem;
+    act := pri;
+    while (act<>NIL) and (act^.dato.codigo < elem.codigo) do begin
+      ant := act;
+      act := act^.sig ;
+    end;
+    if (act = pri)  then
+      pri := nue
+    else
+      ant^.sig := nue;
+    nue^.sig := act ;
+  end;
+procedure inicializarV(var v:vector);
+var
+i:integer;
+begin
+for i:=1 to 7 do
+    v[i]:=nil;
+end;
+
+procedure cargarVector( var v:vector);
+var
+leer:entrada;
+begin
+leerEntrada(leer);
+while (leer.codigo<>0) do begin
+    InsertarEnLista(v[leer.dia], leer );
+    leerEntrada(leer);
+ end;
+end;
+
+
+procedure minimo(var v:vector;var registro_nuevo:entrada2); 
+var 
+i,indicemin:integer; 
+begin 
+  registro_nuevo.codigo:=999;  // voy a usar un nuevo registro  
+  indicemin:=-1; 
+  for i:= 1 to 7 do 
+     if (v[i] <> nil) and (v[i]^.dato.codigo<=registro_nuevo.codigo) then  begin 
+       indicemin:=i; 
+       registro_nuevo.codigo:=v[indicemin]^.dato.codigo; // aca actualiza el minimo 
+      end; 
+  if (indicemin <> -1) then begin  // si pasa esto es porque encontr'o un minimo 
+    
+    v[indicemin]:=v[indicemin]^.sig; 
+end; 
+end; 
+
+procedure AgregarAtras(var l2,ult:lista2;codigo,total:integer); 
+var 
+aux:lista2; 
+begin 
+new(aux); 
+aux^.dato2.codigo:=codigo; 
+aux^.dato2.cantidad:=total; 
+aux^.sig2:=nil; 
+if(l2=nil)then 
+   l2:=aux 
+else 
+  ult^.sig2:=aux; 
+ult:=aux; 
+end; 
+
+procedure merge (v:vector; VAR l2:lista2 ); 
+var 
+actual:integer; 
+total:integer; 
+registro_nuevo:entrada2; 
+ult:lista2; 
+begin 
+l2:=nil; 
+minimo(v, registro_nuevo); 
+while (registro_nuevo.codigo<>999) do begin 
+    actual:=registro_nuevo.codigo; 
+    total:=0; 
+    while(registro_nuevo.codigo<>999) and (actual= registro_nuevo.codigo) do begin 
+        total:=total+1; 
+        minimo(v, registro_nuevo); 
+    end; 
+    AgregarAtras(l2,ult,actual,total);  // aca agrego a la lista2, la nueva  
+  end; 
+end;         
+        
+
+Procedure enOrden(l2:lista2);          // imprime en orden de manor a mayor
+begin
+	 if(l2<>nil)then begin
+		enOrden(l2^.sig2);
+		write('vendió, ');
+		writeln(l2^.dato2.cantidad);
+		write('El codigo, ');
+		writeln(l2^.dato2.codigo);
+		
+		
+		
+	 end;
+end;
+
+var
+v:vector;
+l2:lista2;
+begin
+inicializarV(v);
+cargarVector(v);
+merge(v,l2);
+enOrden(l2);
+end.
+
+
+
+
+

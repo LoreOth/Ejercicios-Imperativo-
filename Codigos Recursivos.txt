@@ -1,0 +1,566 @@
+CODIGOS RECURSIVOS
+
+**********************************************
+registro para fechas
+**********************************************
+    la_fecha = record
+             dia:1..31;
+             mes:1..12;
+             anio:2000..2018;
+    end;
+    recarga =record
+            telefono:integer;
+            area:integer;
+            monto: integer;                           
+            fecha: la_fecha;
+     end;
+
+*********************************************
+
+
+
+
+
+
+
+
+
+
+// RECORDAR INICIALIZAR L Y A.-
+
+
+CREAR ARBOL BINARIO DE BUSQUEDA
+
+Procedure Insertar(var a:arbol; leer:paciente);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.dato:=leer;
+     a^.hi:=nil;
+     a^.hd:=nil;
+  end
+  else begin
+     if(a^.dato.dni>=leer.dni) then
+        insertar(a^.hi,leer)
+     else
+        insertar(a^.hd,leer);
+  end;
+end;
+
+
+Procedure CrearABB(var a:arbol);
+var
+	leer:paciente;
+begin
+	leerPaciente(leer);
+	while(leer.dni<>0)do begin {condicion de corte}
+		Insertar(a,leer);
+		leerPaciente(leer);
+	end;
+end;
+
+********************************************************
+INSERTAR EN ARBOLBB CUANDO NO SE PEUDEN REPETIR LOS NODOS, Y SUMO LOS IGUALES
+********************************************************
+
+INSERTAR Y CUANDO SE REPITE SUMATORIA
+
+Procedure Insertar(var a:arbol; leer:venta);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.datos:=leer;
+     a^.hi:=nil;
+     a^.hd:=nil;
+  end
+  else begin
+     if(a^.datos.codigo>leer.codigo) then 
+        insertar(a^.hi,leer)
+     else
+     if (a^.datos.codigo<leer.codigo) then 
+        insertar(a^.hd,leer)
+     else
+        a^.datos.cantidad:=a^.datos.cantidad + leer.cantidad;
+        
+  end;
+end;
+
+******************************************************
+INSERTAR EN ARBOL CON UN REGISTRO DISTINTO A DE LA LECTURA. PASO LOS CAMPOS DENTRO DEL INSERTAR Y EN ESTE CASO CUENTO LA CANTIDAD DE REPETICIONES Y LAS GUARDO EN EL NODO
+
+Procedure Insertar(var a:arbol; leer:alumno);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.dato.nombre:=leer.nombre;
+     a^.dato.dni:=leer.dni;
+     a^.dato.total:=1;
+     a^.hi:=nil;
+     a^.hd:=nil;
+  end
+  else begin
+     if(a^.dato.dni>leer.dni) then 
+        insertar(a^.hi,leer)
+     else
+     if(a^.dato.dni<leer.dni) then 
+        insertar(a^.hd,leer)
+     else
+      a^.dato.total:=a^.dato.total + 1;
+    
+  end;
+end;
+
+**********************************************************************************
+
+BUSQUEDA EN ARBOL, CON OTRO CRITERIO AL DEL ORDEN. O SEA BUSQUEDA EN TODO LOS NODOS
+
+procedure PreOrden( a : arbol; ciu:integer; var l:lista);         // buscar con otro criterio al de orden. o sea en todo el arbol
+begin
+	if(a<>nil) then 
+	begin
+	  if (a^.dato.codigo = ciu) then
+	    AgregarAdelante(a^.dato,l);
+	PreOrden(a^.HI,ciu,l);
+	PreOrden(a^.HD,ciu,l);
+	end;
+end;
+
+
+
+*********************************************************
+BUSQUEDA EN ARBOL CON IGUAL CRITERIO AL DE ORDEN  PERO TRAYENDO VARIOS DATOS, POR ES ES PROCESO
+*********************************************************************
+
+
+
+Procedure incisob (a:arbol; var numero:integer; var cant:integer; var pude:boolean; var nom:string);
+Begin
+    If (a<>nil) and (pude= false) then
+        if (a^.dato.dni = numero)then begin
+            cant:=a^.dato.total;
+            nom:=a^.dato.nombre;
+            pude:=true;
+        end
+        else
+        if (a^.dato.dni > numero) then
+            incisob (a^.hi, numero,cant, pude, nom)
+        else
+            incisob (a^.hd, numero,cant, pude, nom);
+   end;
+
+***************************************************************************************
+
+
+
+
+
+
+MAXIMO O MINIMO CON FUNCTION
+
+function minimo ( l:lista; min:integer):integer;      // inicializo minimo en programa ppal.
+begin
+    if (l=nil) then
+        minimo:=min
+    else begin
+        if ( l^.dato < min) then
+            min:=l^.dato;
+        minimo:= minimo(l^.sig,min);
+    end;
+end;
+
+
+OTRA FORMA
+
+function minimo ( l:lista; min:integer):integer;      // inicializo minimo en programa ppal.
+begin
+    if (l=nil) then begin
+        minimo:=min
+    end
+    else
+        if ( l^.dato < min) then begin
+             minimo:= minimo(l^.sig,l^.dato)
+        end 
+        else
+         minimo:= minimo(l^.sig,min);
+end;
+
+
+
+function maximo ( l:lista; max:integer):integer;      // inicializo maximo en programa ppal.
+begin
+    if (l=nil) then begin
+        maximo:=max
+    end
+    else
+        if ( l^.dato > max) then begin
+             maximo:=maximo(l^.sig,l^.dato);
+        end
+        else
+             maximo:=maximo(l^.sig,max);
+end;
+
+
+
+Procedure Maximo(V:vector; diml:integer; var max:integer);
+begin
+  If(V[diml]>max)then
+    max:=V[diml];
+  if(diml<>1)then
+    Maximo(V,diml-1,max);
+end;
+
+
+
+***** HAY UN MAXIMO CON VECTOR Y FUNCTION*****
+
+
+*************************************
+maximo y minimo en lista con proceso
+**************************************
+Procedure MaximoR(L:lista;var max:integer);
+begin
+        
+	If(L<>nil)then begin 
+		if(L^.datos.cod>max)then
+			max:=L^.datos.cod;
+		L:=L^.sig;
+		MaximoR(L, max);
+	end;
+
+{DATO MINIMO DE UNA LISTA - RECURSIVO}
+
+Procedure MinimoR(L:lista;var min:integer);
+begin
+        
+	If(L<>nil)then begin 
+		if(L^.datos.cod<min)then
+			min:=L^.datos.cod;
+		L:=L^.sig;
+		MinimoR(L, min);
+	end;
+
+end;
+******************************************
+
+
+
+SUMA RECURSIVA ( SUMA LOS ELEMENTOS DEL VECTOR)
+
+Procedure Suma(V:vector; diml:integer; var total:integer);
+begin
+  total:=total+V[diml];
+  If(diml<>1)then
+    Suma(V,diml-1,total);
+end;
+
+
+
+*** HACER LA SUMA CON UNA FUNCTION***
+
+
+
+
+CANTIDAD DE ELEMENTOS, EN EL ARBOL ( CANTIDAD DE NODOS)
+
+procedure CantidadElementos( a : arbol; var cant:integer);   
+begin
+	if(a<>nil) then 
+	begin
+	  cant:=cant+1;
+	CantidadElementos(a^.HI,cant);
+	CantidadElementos(a^.HD,cant);
+	end;
+end;
+
+
+*** HACERLO EN UNA FUNCTION***
+
+
+
+
+BUSQUEDA RECURSIVA, BUSCA UN VALOR EN LA LISTAa
+
+
+function buscar( l:lista; num:integer):boolean;
+begin
+    if (l=nil) then 
+        buscar:=false
+    else
+    if(l^.dato = num) then
+        buscar:=true
+    else
+        buscar:=buscar(l^.sig, num);
+end;
+
+
+
+
+
+
+BUSQUEDA DICOTOMICA
+
+
+Procedure busquedaDicotomica(v: vector; ini,fin: indice; dato:integer; var pos:indice);
+var
+  medio:integer;
+begin
+  if (ini>fin) then
+    pos:=-1
+  else begin
+    medio:=(ini+fin) div 2;
+    if(dato=V[medio])then
+      pos:=medio
+    else
+      if(dato<v[medio])then
+        busquedaDicotomica(v,ini,medio-1,dato,pos)
+      else
+        busquedaDicotomica(v,medio+1,fin,dato,pos)
+  end;
+
+end;
+
+
+BUSQUEDA EN ARBOL CON IGUAL CRITERIO AL ORDEN
+
+function buscar (a: arbol; dato2:integer): integer; 
+begin 
+    if (a=nil) then  
+        buscar:=-1        // primer caso base        
+
+    else 
+    if (a^.dato.patente = dato2) then           // segundo caso base 
+        buscar:=a^.dato.anio
+    else 
+    if (dato2>a^.dato.patente) then 
+        buscar:=buscar(a^.hd, dato2)
+    else 
+        buscar:=buscar(a^.hi, dato2);  
+end;
+
+
+BUSQUEDA Y CONTADOR EN ARBOL CON DISTINTO CRITERIO AL ORDEN
+
+procedure PreOrden( a : arbol; dato:string; var cantidad:integer);         // buscar con otro criterio al de orden. o sea en todo el arbol
+begin
+	if(a<>nil) then 
+	begin
+	  if (a^.dato.marca = dato) then
+	    cantidad:=cantidad+1;
+	PreOrden(a^.HI,dato,cantidad);
+	PreOrden(a^.HD,dato,cantidad);
+	end;
+end;
+
+
+
+INSERTAR CON UN ORDEN, EN RECURSIVO
+
+
+Procedure Insertar(var a:arbol; num:integer);
+begin
+  if(a=nil) then begin
+     new(a);
+     a^.dato:=num;
+     a^.hd:=nil;
+     a^.hi:=nil;
+  end
+  else begin
+     if(a^.dato>=num) then
+        insertar(a^.hi,num)
+     else
+        insertar(a^.hd,num);
+  end;
+end;
+
+
+
+
+
+
+
+{SUBA izq - RAIZ - SUBA der}
+
+Procedure preOrden(a:arbol);       // ver el sentido y funcionamiento de esta impresion
+begin
+	 if(a<>nil)then begin
+ 		writeln(a^.dato);
+		preOrden(a^.hi);
+		preOrden(a^.hd);
+	 end;
+end;
+
+
+{RAIZ - SUBA izq - SUBA der}
+
+Procedure enOrden(a:arbol);        // en orden imprime ordenado de menor a mayor
+begin
+	 if(a<>nil)then begin
+		enOrden(a^.hi);
+		writeln( a^.dato);
+		enOrden(a^.hd);
+	 end;
+end;
+
+{SUBA izq - SUBA der - Raiz}
+
+Procedure PostOrden(a:arbol);  // ver el sentido y funcionamiento de esta impresion
+begin
+	 if(a<>nil)then begin
+		PostOrden(a^.hi);
+		PostOrden(a^.hd);
+        writeln( a^.dato);
+	 end;
+end;
+
+
+
+
+
+
+
+CARGO UN VECTOR DE LISTAS, CON DATOS QUE VIENEN DE UN ARBOL
+
+procedure preOrden ( var v:vector; a:arbol);       
+begin
+	 if (a<>nil) then begin
+ 		agregarAtras(v [a^.dato.anio ],a^.dato);
+		preOrden(v,a^.hi);
+		preOrden(v,a^.hd);
+	 end;
+end;
+
+
+*************************************************************************
+INICIALIZAR VECTOR DE LISTAS
+*************************************************************************
+procedure inicializarVector( var v:vector);
+var
+i:integer;
+begin
+for i:= 1 to 10 do 
+    v [i]:=nil;
+end;
+*********************************************************************
+
+
+
+
+AGREGAR ATRAS, USO ESTE CODIGO CUANDO AGREGO EN UN VECTOR DE LISTAS.-
+
+Procedure agregarAtras(var p:lista; valor:auto);
+Var
+  aux,act,ant:lista;
+Begin
+  new (aux); 
+  aux^.datoL:= valor; 
+  aux^.sig:=nil;
+
+  if (p = nil) then
+    p:= aux
+  else begin
+    act:= p; ant:=p;
+    while (act <> nil) do begin
+      ant:=act;
+      act:= act^.sig;
+    end;
+    ant^.sig:= aux;
+  end;
+end;
+
+
+
+INICIALIZADOR DE VECTOR DE LISTAS.-
+
+
+procedure inicializarV( var v:vector);
+Var
+i:integer;
+begin
+for i:=2010 to 2018 do 
+    v [i]:=nil;
+end;
+
+
+
+*********************************************
+COMPRENDIDOS CON SUMA
+*********************************************
+           
+procedure comprendidos (a:arbol;cod1:integer; cod2:integer; var total:real);        CORRECTO
+begin 
+if (a<>nil) then 
+    if (a^.dato.codigo>= cod1) and (a^.dato.codigo<=cod2)  then begin 
+            total:= total+a^.dato.precio;
+            comprendidos(a^.hd, cod1,cod2,total); 
+            comprendidos(a^.hi,cod1,cod2,total); 
+    end         
+    else 
+    if (a^.dato.codigo< cod1) then               
+        comprendidos(a^.hd,cod1,cod2,total) 
+    else 
+    if (a^.dato.codigo>cod2) then 
+        comprendidos(a^.hi,cod1,cod2,total);  
+
+   end;
+**********************************************
+COMPRENDIDO QUE VA IMPRIMIENDO
+**********************************************
+ procedure comprendidos (a:arbol);         //CORRECTO
+begin 
+if (a<>nil) then begin 
+    if (a^.dato.legajo> 2803) and (a^.dato.legajo<6982)  then begin  
+            write('el nombre y apellido es ', a^.dato.nombre, a^.dato.apellido,'y estan comprendido '); 
+            comprendidos(a^.hd); 
+            comprendidos(a^.hi); 
+    end         
+    else 
+    if (a^.dato.legajo< 2803) then               
+        comprendidos(a^.hd) 
+    else 
+    if (a^.dato.legajo>6982) then 
+        comprendidos(a^.hi);  
+
+   end; 
+ 
+end; 
+
+************************************************************
+CCOMPRENDIDO PERO ENTRE UN VALOR. O SEA CONTABILIZA LOS MENORES A  DEST  // VER SI ESTA BIEN
+************************************************************
+
+
+procedure comprendidos (a:arbol;dest:integer; var total:integer);       
+begin 
+if (a<>nil) then begin 
+    if (a^.dato.destino<=dest)  then begin  
+            total:= a^.dato.cantidad + total; 
+            comprendidos(a^.hi,dest,total);
+            comprendidos(a^.hd,dest,total) ;
+    end         
+    else 
+    if (a^.dato.destino>dest) then 
+        comprendidos(a^.hi,dest,total);  
+ 
+end; 
+end
+
+******************************************************************
+INSERTAR EN LISTA
+******************************************************************
+Procedure InsertarEnLista ( var pri: lista; elem: elemento);
+var
+  ant, nue, act: lista;
+begin
+  new (nue);
+  nue^.datos := elem;
+  act := pri;
+  while (act<>NIL) and (act^.datos.cod < elem.cod) do begin
+    ant := act;
+    act := act^.sig ;
+  end;
+  if (act = pri)  then
+    pri := nue
+  else
+    ant^.sig := nue;
+  nue^.sig := act ;
+end;
